@@ -52,6 +52,7 @@ pub fn lower_i64_wasm_for_wasi_js(mut wasm_binary_vec: &mut Vec<u8>) -> Result<(
 fn converts() {
     // Run tests for the following strings
     let mut test_file_paths = Vec::new();
+    test_file_paths.push("./wasm_module_examples/rsign.wasm");
     test_file_paths.push("./wasm_module_examples/path_open.wasm");
     test_file_paths.push("./wasm_module_examples/clock_time_get.wasm");
     test_file_paths.push("./wasm_module_examples/matrix.wasm");
