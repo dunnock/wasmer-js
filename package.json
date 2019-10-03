@@ -26,7 +26,7 @@
     "lerna:bootstrap": "npx lerna bootstrap",
     "lerna:build": "npx lerna run build",
     "lerna:build:dev": "npx lerna run build:dev --loglevel error",
-    "wasm-terminal:dev": "npx watch \"(cd crates/wasm_transformer && ./wasm_transformer_build.sh > /dev/null)\" crates/wasm_transformer/src",
+    "wasm-transformer:dev": "npx watch \"(cd crates/wasm_transformer && ./wasm_transformer_build.sh > /dev/null)\" crates/wasm_transformer/src",
     "wasm-shell:build": "npx rollup -c examples/wasm-shell/rollup.config.js --environment PROD",
     "wasm-shell:build:dev": "npx rollup -c examples/wasm-shell/rollup.config.js --environment DEV"
   },

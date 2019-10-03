@@ -71,10 +71,13 @@ fn converts() {
 
         let mut wasm = fs::read(test_file_path).unwrap();
 
-        assert!(
-            wasmparser::validate(&wasm, None),
-            "original Wasm is not valid"
-        );
+        wasmparser::validate(&wasm, None).expect("original Wasm is not valid");
+
+        console_log!(" ");
+        console_log!("OG WAT");
+        console_log!(" ");
+
+        let transformed_og_wat = wabt::wasm2wat(wasm.to_vec());
 
         console_log!(" ");
         console_log!("Original Wasm Size: {}", &wasm.len());
@@ -93,6 +96,13 @@ fn converts() {
         console_log!(" ");
 
         console_log!(" ");
+        console_log!(
+            "Testing... Surrounding bytes 0x{:X?}",
+            wasm.get(0xF20..0xF35).unwrap()
+        );
+        console_log!(" ");
+
+        console_log!(" ");
         console_log!("Convert Back to Wat for descriptive errors (if there is one)");
         console_log!(" ");
 
@@ -101,7 +111,7 @@ fn converts() {
         match transformed_wat {
             Err(e) => {
                 console_log!(" ");
-                console_log!("Test File Path: {:?}", test_file_path);
+                console_log!("wasm2wat Error:");
                 console_log!(" ");
                 console_log!("{:?}", e);
                 console_log!(" ");
@@ -116,9 +126,11 @@ fn converts() {
             }
         }
 
+        let validated = wasmparser::validate(&wasm, None);
         assert!(
-            wasmparser::validate(&wasm, None),
-            "converted Wasm is not valid"
+            !validated.is_err(),
+            "Converted Wasm is not valid (Error with Hex values): {:X?}",
+            validated.err()
         );
     }
 }

@@ -121,6 +121,11 @@ pub fn apply_transformations_to_wasm_binary_vec(
         *functions_section,
     )?;
 
+    console_log!(
+        "Functions section end position {:X?}",
+        functions_section.start_position
+    );
+
     // Edit calls to the original function, to now point at the trampoline functions'
     // NOTE: Since Calls are a part of the function body, we need to calculate the offset
     // from modifying the calls, before adding the trampoline functions. Thus, we get an,
@@ -167,6 +172,9 @@ pub fn apply_transformations_to_wasm_binary_vec(
                 - (call_index_byte_length as isize))
                 as isize;
 
+            console_log!("Call start position: {:X?}", call_index_start_position);
+            console_log!("Call byte_length diff: {:X?}", byte_length_difference);
+
             // Also, we may need to update the function body size
             // If the function signature had a smaller/larger byte_length
             if byte_length_difference != 0 {
@@ -211,6 +219,8 @@ pub fn apply_transformations_to_wasm_binary_vec(
         .iter()
         .find(|&x| x.code == WasmSectionCode::Code)
         .ok_or("Couldn't find code section")?;
+
+    console_log!("Code section end position {:X?}", code_section.end_position);
 
     let trampoline_function_bytes = trampoline_functions
         .iter()
