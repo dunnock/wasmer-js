@@ -52,6 +52,7 @@ pub fn lower_i64_wasm_for_wasi_js(mut wasm_binary_vec: &mut Vec<u8>) -> Result<(
 fn converts() {
     // Run tests for the following strings
     let mut test_file_paths = Vec::new();
+    test_file_paths.push("./wasm_module_examples/qjs.wasm");
     test_file_paths.push("./wasm_module_examples/rsign.wasm");
     test_file_paths.push("./wasm_module_examples/path_open.wasm");
     test_file_paths.push("./wasm_module_examples/clock_time_get.wasm");
@@ -97,8 +98,14 @@ fn converts() {
 
         console_log!(" ");
         console_log!(
-            "Testing... Surrounding bytes 0x{:X?}",
-            wasm.get(0xF20..0xF35).unwrap()
+            "Testing... before bytes 0x{:X?}",
+            wasm.get(0xF20..0xF2d).unwrap()
+        );
+        console_log!(" ");
+        console_log!(" ");
+        console_log!(
+            "Testing... after bytes 0x{:X?}",
+            wasm.get(0xF2c..0xF35).unwrap()
         );
         console_log!(" ");
 
