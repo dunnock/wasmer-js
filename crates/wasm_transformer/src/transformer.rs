@@ -103,7 +103,7 @@ fn converts() {
         console_log!(" ");
 
         console_log!(" ");
-        console_log!("Convert Back to Wat for descriptive errors (if there is one)");
+        console_log!("Outputting errors (if there are some)");
         console_log!(" ");
 
         let transformed_wat = wabt::wasm2wat(wasm.to_vec());
