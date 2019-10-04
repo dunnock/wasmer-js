@@ -5,12 +5,15 @@ import commonjs from "rollup-plugin-commonjs";
 import builtins from "rollup-plugin-node-builtins";
 import replace from "rollup-plugin-replace";
 import globals from "rollup-plugin-node-globals";
-import typescript from "rollup-plugin-typescript2";
+// import typescript from "rollup-plugin-typescript2";
+import babel from "rollup-plugin-babel";
 import json from "rollup-plugin-json";
 import copy from "rollup-plugin-copy";
 import compiler from "@ampproject/rollup-plugin-closure-compiler";
 import bundleSize from "rollup-plugin-bundle-size";
 import pkg from "./package.json";
+
+const fileExtensions = [".js", ".jsx", ".ts", ".tsx"];
 
 const sourcemapOption = process.env.PROD ? undefined : "inline";
 
@@ -19,6 +22,16 @@ let typescriptPluginOptions = {
   exclude: ["./test/**/*"],
   clean: process.env.PROD ? true : false,
   objectHashIgnoreUnknownHack: true
+};
+let babelPluginOptions = {
+  exclude: ["node_modules/(?!(comlink)/)", "./test/**/*"],
+  extensions: fileExtensions,
+  presets: ["@babel/preset-env", "@babel/typescript"],
+  plugins: [
+    ["@babel/plugin-transform-typescript"],
+    ["@babel/plugin-proposal-class-properties"],
+    ["@babel/plugin-proposal-object-rest-spread"]
+  ]
 };
 
 // Need to replace this line for commonjs, as the import.meta object doesn't exist in node
@@ -40,14 +53,16 @@ const replaceBrowserOptions = {
 let plugins = [
   replace(replaceBrowserOptions),
   replace(replaceWASIJsTransformerOptions),
-  typescript(typescriptPluginOptions),
+  // typescript(typescriptPluginOptions),
   resolve({
-    preferBuiltins: true
+    preferBuiltins: true,
+    extensions: fileExtensions
   }),
   commonjs(),
   globals(),
   builtins(),
   json(),
+  babel(babelPluginOptions),
   // Copy over some assets for running the wasm terminal
   copy({
     targets: [
