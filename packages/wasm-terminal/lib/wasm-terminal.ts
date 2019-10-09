@@ -24,9 +24,10 @@ export default class WasmTerminal {
   wasmTty: WasmTty;
   wasmShell: WasmShell;
 
+  keyEvent: any;
+  dataEvent: any;
   pasteEvent: any;
   resizeEvent: any;
-  dataEvent: any;
 
   isOpen: boolean;
   pendingPrintOnOpen: string;
@@ -34,12 +35,16 @@ export default class WasmTerminal {
   constructor(config: any) {
     // Create our xterm element
     this.xterm = new Terminal();
+    this.keyEvent = this.xterm.on("key", (keyObject: any) => {
+      alert("sup");
+      console.log("Key Object", keyObject);
+    });
     // tslint:disable-next-line
     this.pasteEvent = this.xterm.on("paste", this.onPaste);
     // tslint:disable-next-line
     this.resizeEvent = this.xterm.on("resize", this.handleTermResize);
 
-    // Set up our container
+    // Set up our elements
     this.container = undefined;
 
     // Load our addons
@@ -51,6 +56,7 @@ export default class WasmTerminal {
     // Create our Shell and tty
     this.wasmTty = new WasmTty(this.xterm);
     this.wasmShell = new WasmShell(this.wasmTerminalConfig, this.wasmTty);
+
     // tslint:disable-next-line
     this.dataEvent = this.xterm.on("data", this.wasmShell.handleTermData);
 
@@ -84,6 +90,30 @@ export default class WasmTerminal {
       if (this.pendingPrintOnOpen) {
         this.wasmTty.print(this.pendingPrintOnOpen + "\n");
         this.pendingPrintOnOpen = "";
+      }
+
+      // https://github.com/xtermjs/xterm.js/issues/1974
+      const xtermCanvases = document.querySelectorAll(
+        ".xterm .xterm-screen canvas"
+      );
+      if (xtermCanvases.length > 0) {
+        xtermCanvases.forEach(xtermCanvas => {
+          (xtermCanvas as any).style.border = "0px solid #000";
+        });
+      }
+
+      // Prevent default so we don't have actual text in the text area
+      const xtermTextArea = document.querySelector(".xterm-helper-textarea");
+      if (xtermTextArea) {
+        /*
+        const eventHandler = (event: any) => {
+          event.preventDefault();
+          return true;
+        };
+        (xtermTextArea.parentNode as any).addEventListener('keydown', eventHandler);
+        (xtermTextArea.parentNode as any).addEventListener('keypress', eventHandler);
+        (xtermTextArea.parentNode as any).addEventListener('keyup', eventHandler);
+         */
       }
 
       // tslint:disable-next-line
