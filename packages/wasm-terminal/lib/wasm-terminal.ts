@@ -35,9 +35,11 @@ export default class WasmTerminal {
   constructor(config: any) {
     // Create our xterm element
     this.xterm = new Terminal();
-    this.keyEvent = this.xterm.on("key", (keyObject: any) => {
-      alert("sup");
+    this.xterm.onKey((keyObject: any) => {
+      console.log("onKey");
       console.log("Key Object", keyObject);
+      keyObject.domEvent.preventDefault();
+      // alert(keyObject.domEvent.type);
     });
     // tslint:disable-next-line
     this.pasteEvent = this.xterm.on("paste", this.onPaste);
