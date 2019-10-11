@@ -13,7 +13,9 @@ import WasmTerminalConfig from "./wasm-terminal-config";
 import WasmTty from "./wasm-tty/wasm-tty";
 import WasmShell from "./wasm-shell/wasm-shell";
 
+// Fixes for mobile firefox odd textarea behavior
 const MOBILE_KEYBOARD_EVENTS = ["click", "tap"];
+const INITIAL_TEXTAREA_VALUE = "A";
 
 export default class WasmTerminal {
   xterm: Terminal;
@@ -38,6 +40,14 @@ export default class WasmTerminal {
     this.pasteEvent = this.xterm.on("paste", this.onPaste);
     // tslint:disable-next-line
     this.resizeEvent = this.xterm.on("resize", this.handleTermResize);
+    this.xterm.onKey((keyEvent: { key: string; domEvent: KeyboardEvent }) => {
+      // Fix for mobile firefox "composition mode"
+      const event = keyEvent.domEvent as any;
+      event.preventDefault();
+      event.stopPropagation();
+      event.target.value = INITIAL_TEXTAREA_VALUE;
+      return false;
+    });
 
     // Set up our container
     this.container = undefined;
@@ -79,6 +89,28 @@ export default class WasmTerminal {
           // @ts-ignore
           this.container.addEventListener(eventName, focusHandler);
         });
+      }
+
+      // Fix for FireFox not respecting textareas correctly
+      const textArea = container.querySelector(".xterm-helper-textarea");
+      if (textArea) {
+        (textArea as any).value = INITIAL_TEXTAREA_VALUE;
+
+        // Stop composition events
+        const onCompositionEvent = (event: any) => {
+          event.preventDefault();
+          event.stopPropagation();
+          this.wasmShell.handleData(event.data);
+          return false;
+        };
+
+        textArea.addEventListener("compositionstart", onCompositionEvent, true);
+        textArea.addEventListener(
+          "compositionupdate",
+          onCompositionEvent,
+          true
+        );
+        textArea.addEventListener("compositionend", onCompositionEvent, true);
       }
 
       if (this.pendingPrintOnOpen) {
