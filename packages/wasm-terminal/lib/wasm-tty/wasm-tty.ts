@@ -113,7 +113,8 @@ export default class WasmTTY {
   print(message: string, sync?: boolean) {
     const normInput = message.replace(/[\r\n]+/g, "\n").replace(/\n/g, "\r\n");
     if (sync) {
-      // Force a reload in xterm
+      // We write it synchronously via hacking a bit on xterm
+
       //@ts-ignore
       this.xterm._core.writeSync(normInput);
       //@ts-ignore
@@ -122,7 +123,7 @@ export default class WasmTTY {
       );
     } else {
       //@ts-ignore
-      this.xterm._core.write(normInput);
+      this.xterm.write(normInput);
     }
   }
 
