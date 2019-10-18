@@ -21,6 +21,32 @@ const merge = (...streams: Duplex[]) => {
   return pass;
 };
 
+/**
+
+ This function removes the ansi escape characters
+ (normally used for printing colors and so)
+ Inspired by: https://github.com/chalk/ansi-regex/blob/master/index.js
+
+MIT License
+
+Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (sindresorhus.com)
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+*/
+const cleanStdout = (stdout: string) => {
+  const pattern = [
+    "[\\u001B\\u009B][[\\]()#;?]*(?:(?:(?:[a-zA-Z\\d]*(?:;[-a-zA-Z\\d\\/#&.:=?%@~_]*)*)?\\u0007)",
+    "(?:(?:\\d{1,4}(?:;\\d{0,4})*)?[\\dA-PR-TZcf-ntqry=><~]))"
+  ].join("|");
+
+  const regexPattern = new RegExp(pattern, "g");
+  return stdout.replace(regexPattern, "");
+};
+
 export default class WASICommand extends Command {
   wasi: WASI;
   instantiateReponsePromise: Promise<WebAssembly.Instance>;
@@ -30,6 +56,7 @@ export default class WASICommand extends Command {
   sharedStdin?: Int32Array;
   startStdinReadCallback?: Function;
   pipedStdin: string;
+  stdinPrompt: string = "";
 
   readStdinCounter: number;
 
@@ -115,6 +142,12 @@ export default class WASICommand extends Command {
     if (this.stdoutCallback) {
       this.stdoutCallback(stdoutBuffer);
     }
+    let dataLines = new TextDecoder("utf-8").decode(stdoutBuffer).split("\n");
+    if (dataLines.length > 0) {
+      this.stdinPrompt = cleanStdout(dataLines[dataLines.length - 1]);
+    } else {
+      this.stdinPrompt = "";
+    }
     return stdoutBuffer.length;
   }
 
@@ -153,9 +186,13 @@ export default class WASICommand extends Command {
       }
       responseStdin = new TextDecoder("utf-8").decode(newStdinData);
     } else {
-      responseStdin = prompt("Please enter text for stdin:");
+      responseStdin = prompt(
+        `Please enter text for stdin:\n${this.stdinPrompt}`
+      );
       if (responseStdin === null) {
-        this.stdoutCallback(new TextEncoder().encode("\n"));
+        if (this.stdoutCallback) {
+          this.stdoutCallback(new TextEncoder().encode("\n"));
+        }
         const userError = new Error("Process killed by user");
         (userError as any).user = true;
         throw userError;
