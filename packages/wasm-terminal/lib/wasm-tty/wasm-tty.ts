@@ -1,4 +1,4 @@
-import { Terminal, IBuffer, IBufferLine } from "xterm";
+import { Terminal, IBuffer } from "xterm";
 import { countLines, offsetToColRow } from "./tty-utils";
 import { ActiveCharPrompt, ActivePrompt } from "../wasm-shell/shell-utils";
 

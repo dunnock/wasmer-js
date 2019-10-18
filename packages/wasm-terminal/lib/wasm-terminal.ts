@@ -1,6 +1,5 @@
 // The Wasm Terminal
-
-import { Terminal, ITerminalOptions, IBufferLine } from "xterm";
+import { Terminal } from "xterm";
 import { FitAddon } from "xterm-addon-fit";
 import { WebLinksAddon } from "xterm-addon-web-links";
 // import { WebglAddon } from 'xterm-addon-webgl';

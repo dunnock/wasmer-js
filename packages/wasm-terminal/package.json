@@ -45,9 +45,9 @@
   },
   "homepage": "https://github.com/wasmerio/wasmer-js/tree/master/packages/wasm-terminal",
   "dependencies": {
-    "@wasmer/wasi": "^0.2.0",
-    "@wasmer/wasm-transformer": "^0.1.0",
-    "@wasmer/wasmfs": "^0.2.1",
+    "@wasmer/wasi": "file:../wasi",
+    "@wasmer/wasm-transformer": "file:../wasm-transformer",
+    "@wasmer/wasmfs": "file:../wasmfs",
     "comlink": "^4.0.2",
     "shell-parse": "0.0.2",
     "shell-quote": "^1.7.1",
