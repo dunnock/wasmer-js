@@ -1,5 +1,6 @@
 // The Wasm Terminal
-import { Terminal } from "xterm";
+import * as xterm from "xterm";
+const Terminal = xterm.Terminal;
 import { FitAddon } from "xterm-addon-fit";
 import { WebLinksAddon } from "xterm-addon-web-links";
 // import { WebglAddon } from 'xterm-addon-webgl';
@@ -11,7 +12,7 @@ import WasmShell from "./wasm-shell/wasm-shell";
 const MOBILE_KEYBOARD_EVENTS = ["click", "tap"];
 
 export default class WasmTerminal {
-  xterm: Terminal;
+  xterm: any;
   container: HTMLElement | undefined;
   webLinksAddon: WebLinksAddon;
   fitAddon: FitAddon;
